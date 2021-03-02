@@ -50,35 +50,38 @@ public class AddRecordDialog extends JDialog implements ActionListener {
 		JPanel empDetails, buttonPanel;
 		empDetails = new JPanel(new MigLayout());
 		buttonPanel = new JPanel();
+		String JLabelConstraint= "growx, pushx";
+		String ComponentConstraint= "growx, pushx, wrap";
+
 		JTextField field;
 
 		empDetails.setBorder(BorderFactory.createTitledBorder("Employee Details"));
 
-		empDetails.add(new JLabel("ID:"), "growx, pushx");
-		empDetails.add(idField = new JTextField(20), "growx, pushx, wrap");
+		empDetails.add(new JLabel("ID:"), JLabelConstraint);
+		empDetails.add(idField = new JTextField(20), ComponentConstraint);
 		idField.setEditable(false);
 		
 
-		empDetails.add(new JLabel("PPS Number:"), "growx, pushx");
-		empDetails.add(ppsField = new JTextField(20), "growx, pushx, wrap");
+		empDetails.add(new JLabel("PPS Number:"), JLabelConstraint);
+		empDetails.add(ppsField = new JTextField(20), ComponentConstraint);
 
-		empDetails.add(new JLabel("Surname:"), "growx, pushx");
-		empDetails.add(surnameField = new JTextField(20), "growx, pushx, wrap");
+		empDetails.add(new JLabel("Surname:"), JLabelConstraint);
+		empDetails.add(surnameField = new JTextField(20), ComponentConstraint);
 
-		empDetails.add(new JLabel("First Name:"), "growx, pushx");
-		empDetails.add(firstNameField = new JTextField(20), "growx, pushx, wrap");
+		empDetails.add(new JLabel("First Name:"), JLabelConstraint);
+		empDetails.add(firstNameField = new JTextField(20), ComponentConstraint);
 
-		empDetails.add(new JLabel("Gender:"), "growx, pushx");
-		empDetails.add(genderCombo = new JComboBox<String>(this.parent.gender), "growx, pushx, wrap");
+		empDetails.add(new JLabel("Gender:"), JLabelConstraint);
+		empDetails.add(genderCombo = new JComboBox<String>(this.parent.gender), ComponentConstraint);
 
-		empDetails.add(new JLabel("Department:"), "growx, pushx");
-		empDetails.add(departmentCombo = new JComboBox<String>(this.parent.department), "growx, pushx, wrap");
+		empDetails.add(new JLabel("Department:"), JLabelConstraint);
+		empDetails.add(departmentCombo = new JComboBox<String>(this.parent.department),ComponentConstraint);
 
-		empDetails.add(new JLabel("Salary:"), "growx, pushx");
+		empDetails.add(new JLabel("Salary:"), JLabelConstraint);
 		empDetails.add(salaryField = new JTextField(20), "growx, pushx, wrap");
 
-		empDetails.add(new JLabel("Full Time:"), "growx, pushx");
-		empDetails.add(fullTimeCombo = new JComboBox<String>(this.parent.fullTime), "growx, pushx, wrap");
+		empDetails.add(new JLabel("Full Time:"), JLabelConstraint);
+		empDetails.add(fullTimeCombo = new JComboBox<String>(this.parent.fullTime), ComponentConstraint);
 
 		buttonPanel.add(save = new JButton("Save"));
 		save.addActionListener(this);
@@ -86,7 +89,7 @@ public class AddRecordDialog extends JDialog implements ActionListener {
 		buttonPanel.add(cancel = new JButton("Cancel"));
 		cancel.addActionListener(this);
 
-		empDetails.add(buttonPanel, "span 2,growx, pushx,wrap");
+		empDetails.add(buttonPanel, "span 2, " + ComponentConstraint);
 		// loop through all panel components and add fonts and listeners
 		for (int i = 0; i < empDetails.getComponentCount(); i++) {
 			empDetails.getComponent(i).setFont(this.parent.font1);
@@ -105,17 +108,26 @@ public class AddRecordDialog extends JDialog implements ActionListener {
 		return empDetails;
 	}
 
+	public String getFieldText(JTextField t){
+		return t.getText().toUpperCase();
+	}
 	// add record to file
 	public void addRecord() {
 		boolean fullTime = false;
 		Employee theEmployee;
 
+		int EmpId= Integer.parseInt(idField.getText());
+		String pps = getFieldText(ppsField);
+		String surname =getFieldText(surnameField);
+		String firstName = getFieldText(firstNameField);
+		char gender = genderCombo.getSelectedItem().toString().charAt(0);
+		String department = departmentCombo.getSelectedItem().toString();
+		Double salary = Double.parseDouble(salaryField.getText());
 		if (((String) fullTimeCombo.getSelectedItem()).equalsIgnoreCase("Yes"))
 			fullTime = true;
 		// create new Employee record with details from text fields
-		theEmployee = new Employee(Integer.parseInt(idField.getText()), ppsField.getText().toUpperCase(), surnameField.getText().toUpperCase(),
-				firstNameField.getText().toUpperCase(), genderCombo.getSelectedItem().toString().charAt(0),
-				departmentCombo.getSelectedItem().toString(), Double.parseDouble(salaryField.getText()), fullTime);
+		theEmployee = new Employee(EmpId, pps, surname, firstName,gender,
+				department, salary , fullTime);;
 		this.parent.currentEmployee = theEmployee;
 		this.parent.addRecord(theEmployee);
 		this.parent.displayRecords(theEmployee);
@@ -124,6 +136,7 @@ public class AddRecordDialog extends JDialog implements ActionListener {
 	// check for input in text fields
 	public boolean checkInput() {
 		boolean valid = true;
+		
 		// if any of inputs are in wrong format, colour text field and display message
 		if (ppsField.getText().equals("")) {
 			ppsField.setBackground(new Color(255, 150, 150));
