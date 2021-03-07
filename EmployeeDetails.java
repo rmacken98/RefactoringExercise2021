@@ -49,7 +49,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import net.miginfocom.swing.MigLayout;
 
-public class EmployeeDetails extends JFrame implements ActionListener, ItemListener, DocumentListener, WindowListener {
+public class EmployeeDetails extends JFrame implements  ItemListener, DocumentListener, WindowListener {
 	// decimal format for inactive currency text field
 	private static final DecimalFormat format = new DecimalFormat("\u20ac ###,###,##0.00");
 	// decimal format for active currency text field
@@ -105,40 +105,46 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		menuBar.add(navigateMenu);
 		menuBar.add(closeMenu);
 
-		fileMenu.add(open = new JMenuItem("Open")).addActionListener(this);
+		fileMenu.add(open = new JMenuItem("Open")).addActionListener(openListener);
 		open.setMnemonic(KeyEvent.VK_O);
 		open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
-		fileMenu.add(save = new JMenuItem("Save")).addActionListener(this);
+		fileMenu.add(save = new JMenuItem("Save")).addActionListener(saveListener);
 		save.setMnemonic(KeyEvent.VK_S);
 		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
-		fileMenu.add(saveAs = new JMenuItem("Save As")).addActionListener(this);
+		fileMenu.add(saveAs = new JMenuItem("Save As")).addActionListener(saveAsListener);
 		saveAs.setMnemonic(KeyEvent.VK_F2);
 		saveAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, ActionEvent.CTRL_MASK));
 
-		recordMenu.add(create = new JMenuItem("Create new Record")).addActionListener(this);
+		recordMenu.add(create = new JMenuItem("Create new Record")).addActionListener(addRecordListener);
 		create.setMnemonic(KeyEvent.VK_N);
 		create.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
-		recordMenu.add(modify = new JMenuItem("Modify Record")).addActionListener(this);
+		recordMenu.add(modify = new JMenuItem("Modify Record")).addActionListener(modifyRecordListener);
 		modify.setMnemonic(KeyEvent.VK_E);
 		modify.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));
-		recordMenu.add(delete = new JMenuItem("Delete Record")).addActionListener(this);
+		recordMenu.add(delete = new JMenuItem("Delete Record")).addActionListener(deleteRecordListener);
 
 		navigateMenu.add(firstItem = new JMenuItem("First"));
-		firstItem.addActionListener(this);
+		
 		navigateMenu.add(prevItem = new JMenuItem("Previous"));
-		prevItem.addActionListener(this);
+		
 		navigateMenu.add(nextItem = new JMenuItem("Next"));
-		nextItem.addActionListener(this);
+		
 		navigateMenu.add(lastItem = new JMenuItem("Last"));
-		lastItem.addActionListener(this);
+		
 		navigateMenu.addSeparator();
-		navigateMenu.add(searchById = new JMenuItem("Search by ID")).addActionListener(this);
-		navigateMenu.add(searchBySurname = new JMenuItem("Search by Surname")).addActionListener(this);
-		navigateMenu.add(listAll = new JMenuItem("List all Records")).addActionListener(this);
+		navigateMenu.add(searchById = new JMenuItem("Search by ID")).addActionListener(IdSearchListener);
+		navigateMenu.add(searchBySurname = new JMenuItem("Search by Surname")).addActionListener(surnameSearch);
+		navigateMenu.add(listAll = new JMenuItem("List all Records")).addActionListener(displayAllListener);
 
-		closeMenu.add(closeApp = new JMenuItem("Close")).addActionListener(this);
+		closeMenu.add(closeApp = new JMenuItem("Close")).addActionListener(closeListener);
 		closeApp.setMnemonic(KeyEvent.VK_F4);
 		closeApp.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.CTRL_MASK));
+		
+		
+		firstItem.addActionListener(firstRecordListener);
+		prevItem.addActionListener(prevRecordListener);
+		nextItem.addActionListener(nextRecordListener);
+		lastItem.addActionListener(lastRecordListener);
 
 		return menuBar;
 	}// end menuBar
@@ -150,24 +156,31 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		searchPanel.setBorder(BorderFactory.createTitledBorder("Search"));
 		searchPanel.add(new JLabel("Search by ID:"), "growx, pushx");
 		searchPanel.add(searchByIdField = new JTextField(20), "width 200:200:200, growx, pushx");
-		searchByIdField.addActionListener(this);
+		
 		searchByIdField.setDocument(new JTextFieldLimit(20));
 		searchPanel.add(searchId = new JButton(new ImageIcon(
 				new ImageIcon("imgres.png").getImage().getScaledInstance(35, 20, java.awt.Image.SCALE_SMOOTH))),
 				"width 35:35:35, height 20:20:20, growx, pushx, wrap");
-		searchId.addActionListener(this);
+		
 		searchId.setToolTipText("Search Employee By ID");
 
 		searchPanel.add(new JLabel("Search by Surname:"), "growx, pushx");
 		searchPanel.add(searchBySurnameField = new JTextField(20), "width 200:200:200, growx, pushx");
-		searchBySurnameField.addActionListener(this);
+		
 		searchBySurnameField.setDocument(new JTextFieldLimit(20));
 		searchPanel.add(
 				searchSurname = new JButton(new ImageIcon(new ImageIcon("imgres.png").getImage()
 						.getScaledInstance(35, 20, java.awt.Image.SCALE_SMOOTH))),
 				"width 35:35:35, height 20:20:20, growx, pushx, wrap");
-		searchSurname.addActionListener(this);
+		
 		searchSurname.setToolTipText("Search Employee By Surname");
+	
+		searchByIdField.addActionListener(IdSearchListener);
+		searchId.addActionListener(IdSearchListener);
+		searchBySurnameField.addActionListener(surnameSearch);
+		searchSurname.addActionListener(surnameSearch);
+		
+		
 
 		return searchPanel;
 	}// end searchPanel
@@ -180,26 +193,34 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		navigPanel.add(first = new JButton(new ImageIcon(
 				new ImageIcon("first.png").getImage().getScaledInstance(17, 17, java.awt.Image.SCALE_SMOOTH))));
 		first.setPreferredSize(new Dimension(17, 17));
-		first.addActionListener(this);
+		first.addActionListener(firstRecordListener);
 		first.setToolTipText("Display first Record");
 
 		navigPanel.add(previous = new JButton(new ImageIcon(new ImageIcon("previous.png").getImage()
 				.getScaledInstance(17, 17, java.awt.Image.SCALE_SMOOTH))));
 		previous.setPreferredSize(new Dimension(17, 17));
-		previous.addActionListener(this);
-		previous.setToolTipText("Display next Record");
+		previous.addActionListener(prevRecordListener);
+		previous.setToolTipText("Display previous Record");
 
 		navigPanel.add(next = new JButton(new ImageIcon(
 				new ImageIcon("next.png").getImage().getScaledInstance(17, 17, java.awt.Image.SCALE_SMOOTH))));
 		next.setPreferredSize(new Dimension(17, 17));
-		next.addActionListener(this);
-		next.setToolTipText("Display previous Record");
+		next.addActionListener(nextRecordListener);
+		next.setToolTipText("Display next Record");
 
 		navigPanel.add(last = new JButton(new ImageIcon(
 				new ImageIcon("last.png").getImage().getScaledInstance(17, 17, java.awt.Image.SCALE_SMOOTH))));
 		last.setPreferredSize(new Dimension(17, 17));
-		last.addActionListener(this);
+		last.addActionListener(lastRecordListener);
 		last.setToolTipText("Display last Record");
+		
+		
+		
+		
+		
+		
+		
+		
 
 		return navigPanel;
 	}// end naviPanel
@@ -208,16 +229,16 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		JPanel buttonPanel = new JPanel();
 
 		buttonPanel.add(add = new JButton("Add Record"), "growx, pushx");
-		add.addActionListener(this);
+		add.addActionListener(addRecordListener);
 		add.setToolTipText("Add new Employee Record");
 		buttonPanel.add(edit = new JButton("Edit Record"), "growx, pushx");
-		edit.addActionListener(this);
+		edit.addActionListener(modifyRecordListener);
 		edit.setToolTipText("Edit current Employee");
 		buttonPanel.add(deleteButton = new JButton("Delete Record"), "growx, pushx, wrap");
-		deleteButton.addActionListener(this);
+		deleteButton.addActionListener(deleteRecordListener);
 		deleteButton.setToolTipText("Delete current Employee");
 		buttonPanel.add(displayAll = new JButton("List all Records"), "growx, pushx");
-		displayAll.addActionListener(this);
+		displayAll.addActionListener(displayAllListener);
 		displayAll.setToolTipText("List all Registered Employees");
 
 		return buttonPanel;
@@ -257,11 +278,11 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		empDetails.add(fullTimeCombo = new JComboBox<String>(fullTime), "growx, pushx, wrap");
 
 		buttonPanel.add(saveChange = new JButton("Save"));
-		saveChange.addActionListener(this);
+		saveChange.addActionListener(saveChangeListener);
 		saveChange.setVisible(false);
 		saveChange.setToolTipText("Save changes");
 		buttonPanel.add(cancelChange = new JButton("Cancel"));
-		cancelChange.addActionListener(this);
+		cancelChange.addActionListener(cancelChangeListener);
 		cancelChange.setVisible(false);
 		cancelChange.setToolTipText("Cancel edit");
 
@@ -349,13 +370,13 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 	// display search by ID dialog
 	private void displaySearchByIdDialog() {
 		if (isSomeoneToDisplay())
-			new SearchByIdDialog(EmployeeDetails.this);
+			 new SearchDialog(EmployeeDetails.this,"ID");
 	}// end displaySearchByIdDialog
 
 	// display search by surname dialog
 	private void displaySearchBySurnameDialog() {
 		if (isSomeoneToDisplay())
-			new SearchBySurnameDialog(EmployeeDetails.this);
+			 new SearchDialog(EmployeeDetails.this,"Surname");
 	}// end displaySearchBySurnameDialog
 
 	// find byte start in file for first active record
@@ -705,6 +726,9 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 	}// end checkForChanges
 
 	// check for input in text fields
+	
+	
+	
 	private boolean checkInput() {
 		boolean valid = true;
 		// if any of inputs are in wrong format, colour text field and display
@@ -936,17 +960,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 					System.exit(0);// exit application
 				} // end if
 					// else exit application
-				else if (returnVal == JOptionPane.NO_OPTION) {
-					// delete generated file if user chooses not to save file
-					if (file.getName().equals(generatedFileName))
-						file.delete();// delete file
-					System.exit(0);// exit application
-				} // end else if
-			} // end if
-			else {
-				// delete generated file if user chooses not to save file
-				if (file.getName().equals(generatedFileName))
-					file.delete();// delete file
+				else 
 				System.exit(0);// exit application
 			} // end else
 				// else exit application
@@ -981,76 +995,7 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 		application.createFile(file.getName());
 	}// end createRandomFile
 
-	// action listener for buttons, text field and menu items
-	public void actionPerformed(ActionEvent e) {
-
-		if (e.getSource() == closeApp) {
-			if (checkInput() && !checkForChanges())
-				exitApp();
-		} else if (e.getSource() == open) {
-			if (checkInput() && !checkForChanges())
-				openFile();
-		} else if (e.getSource() == save) {
-			if (checkInput() && !checkForChanges())
-				saveFile();
-			change = false;
-		} else if (e.getSource() == saveAs) {
-			if (checkInput() && !checkForChanges())
-				saveFileAs();
-			change = false;
-		} else if (e.getSource() == searchById) {
-			if (checkInput() && !checkForChanges())
-				displaySearchByIdDialog();
-		} else if (e.getSource() == searchBySurname) {
-			if (checkInput() && !checkForChanges())
-				displaySearchBySurnameDialog();
-		} else if (e.getSource() == searchId || e.getSource() == searchByIdField)
-			searchEmployeeById();
-		else if (e.getSource() == searchSurname || e.getSource() == searchBySurnameField)
-			searchEmployeeBySurname();
-		else if (e.getSource() == saveChange) {
-			if (checkInput() && !checkForChanges())
-				;
-		} else if (e.getSource() == cancelChange)
-			cancelChange();
-		else if (e.getSource() == firstItem || e.getSource() == first) {
-			if (checkInput() && !checkForChanges()) {
-				firstRecord();
-				displayRecords(currentEmployee);
-			}
-		} else if (e.getSource() == prevItem || e.getSource() == previous) {
-			if (checkInput() && !checkForChanges()) {
-				previousRecord();
-				displayRecords(currentEmployee);
-			}
-		} else if (e.getSource() == nextItem || e.getSource() == next) {
-			if (checkInput() && !checkForChanges()) {
-				nextRecord();
-				displayRecords(currentEmployee);
-			}
-		} else if (e.getSource() == lastItem || e.getSource() == last) {
-			if (checkInput() && !checkForChanges()) {
-				lastRecord();
-				displayRecords(currentEmployee);
-			}
-		} else if (e.getSource() == listAll || e.getSource() == displayAll) {
-			if (checkInput() && !checkForChanges())
-				if (isSomeoneToDisplay())
-					displayEmployeeSummaryDialog();
-		} else if (e.getSource() == create || e.getSource() == add) {
-			if (checkInput() && !checkForChanges())
-				new AddRecordDialog(EmployeeDetails.this);
-		} else if (e.getSource() == modify || e.getSource() == edit) {
-			if (checkInput() && !checkForChanges())
-				editDetails();
-		} else if (e.getSource() == delete || e.getSource() == deleteButton) {
-			if (checkInput() && !checkForChanges())
-				deleteRecord();
-		} else if (e.getSource() == searchBySurname) {
-			if (checkInput() && !checkForChanges())
-				new SearchBySurnameDialog(EmployeeDetails.this);
-		}
-	}// end actionPerformed
+	
 
 	// content pane for main dialog
 	private void createContentPane() {
@@ -1136,4 +1081,149 @@ public class EmployeeDetails extends JFrame implements ActionListener, ItemListe
 
 	public void windowOpened(WindowEvent e) {
 	}
+	
+	ActionListener closeListener= new ActionListener() {
+	    public void actionPerformed(ActionEvent ae) {
+	    	if (checkInput() && !checkForChanges())
+	    	exitApp();
+
+	    }
+	};
+	ActionListener openListener= new ActionListener() {
+	    public void actionPerformed(ActionEvent ae) {
+	    	if (checkInput() && !checkForChanges())
+	    	openFile();
+
+	    }
+	};
+	ActionListener saveListener= new ActionListener() {
+	    public void actionPerformed(ActionEvent ae) {
+	    	if (checkInput() && !checkForChanges())
+	    	saveFile();
+
+	    }
+	};
+	ActionListener saveAsListener= new ActionListener() {
+	    public void actionPerformed(ActionEvent ae) {
+	    	if (checkInput() && !checkForChanges())
+	    	saveFileAs();
+
+	    }
+	};
+	
+	ActionListener displayAllListener= new ActionListener() {
+	    public void actionPerformed(ActionEvent ae) {
+
+	    	if (checkInput() && !checkForChanges())
+				if (isSomeoneToDisplay())
+					displayEmployeeSummaryDialog();
+
+	    }
+	};
+	ActionListener addRecordListener= new ActionListener() {
+	    public void actionPerformed(ActionEvent ae) {
+
+	        if(checkInput() && !checkForChanges()) {
+	        	new AddRecordDialog(EmployeeDetails.this);
+	        }
+
+	    }
+	};
+	ActionListener modifyRecordListener= new ActionListener() {
+	    public void actionPerformed(ActionEvent ae) {
+
+	        if(checkInput() && !checkForChanges()) {
+	        	editDetails();	        }
+
+	    }
+	};
+	ActionListener saveChangeListener= new ActionListener() {
+	    public void actionPerformed(ActionEvent ae) {
+
+	    	if (checkInput() && !checkForChanges()) {}
+				
+	    	
+	    }
+	};
+	ActionListener cancelChangeListener= new ActionListener() {
+	    public void actionPerformed(ActionEvent ae) {
+
+	    	if (checkInput() && !checkForChanges()) {}
+				
+	    	cancelChange();
+	    }
+	};
+
+	
+	
+	ActionListener deleteRecordListener= new ActionListener() {
+	    public void actionPerformed(ActionEvent ae) {
+
+	        if(checkInput() && !checkForChanges()) {
+	        	deleteRecord();
+	        }
+
+	    }
+	};
+	ActionListener firstRecordListener= new ActionListener() {
+	    public void actionPerformed(ActionEvent ae) {
+
+	        if(checkInput() && !checkForChanges()) {
+	        	firstRecord();
+	        	displayRecords(currentEmployee);
+	        }
+
+	    }
+	};
+	ActionListener prevRecordListener= new ActionListener() {
+	    public void actionPerformed(ActionEvent ae) {
+
+	        if(checkInput() && !checkForChanges()) {
+	        	previousRecord();
+	        	displayRecords(currentEmployee);
+	        }
+
+	    }
+	};
+ActionListener nextRecordListener= new ActionListener() {
+    public void actionPerformed(ActionEvent ae) {
+
+        if(checkInput() && !checkForChanges()) {
+        	nextRecord();
+        	displayRecords(currentEmployee);
+        }
+
+    }
+};
+
+ActionListener lastRecordListener= new ActionListener() {
+    public void actionPerformed(ActionEvent ae) {
+
+        if(checkInput() && !checkForChanges()) {
+        	lastRecord();
+        	displayRecords(currentEmployee);
+        }
+
+    }
+};
+	
+	ActionListener IdSearchListener = new ActionListener() {
+        public void actionPerformed(ActionEvent ae) {
+
+          
+            	searchEmployeeById();
+           
+
+        }
+    };
+	
+    ActionListener surnameSearch = new ActionListener() {
+        public void actionPerformed(ActionEvent ae) {
+
+             
+            	searchEmployeeBySurname();
+            
+
+        }
+    };
 }// end class EmployeeDetails
