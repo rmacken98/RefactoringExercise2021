@@ -123,7 +123,6 @@ public class EmployeeDetails extends JFrame implements ItemListener, DocumentLis
 	JButton add = panels.add;
 	JButton edit = panels.edit;
 	JButton deleteButton = panels.deleteButton;
-	// initialize menu bar
 
 	public void createActions() {
 		searchByIdField.addActionListener(IdSearchListener);
@@ -149,8 +148,8 @@ public class EmployeeDetails extends JFrame implements ItemListener, DocumentLis
 		lastItem.addActionListener(firstRecordListener);
 		nextItem.addActionListener(nextRecordListener);
 		prevItem.addActionListener(prevRecordListener);
-		searchById.addActionListener(IdSearchListener);
-		searchBySurname.addActionListener(surnameSearch);
+		searchById.addActionListener(IdDialogListener);
+		searchBySurname.addActionListener(surnameDialogListener);
 		listAll.addActionListener(displayAllListener);
 		closeApp.addActionListener(closeListener);
 
@@ -199,24 +198,8 @@ public class EmployeeDetails extends JFrame implements ItemListener, DocumentLis
 		change = false;
 	}// end display records
 
-	// display Employee summary dialog
-	public void displayEmployeeSummaryDialog() {
-		// display Employee summary dialog if these is someone to display
-		if (isSomeoneToDisplay())
-			new EmployeeSummaryDialog(getAllEmloyees());
-	}// end displaySummaryDialog
+	
 
-	// display search by ID dialog
-	public void displaySearchByIdDialog() {
-		if (isSomeoneToDisplay())
-			new SearchDialog(EmployeeDetails.this, "ID");
-	}// end displaySearchByIdDialog
-
-	// display search by surname dialog
-	public void displaySearchBySurnameDialog() {
-		if (isSomeoneToDisplay())
-			new SearchDialog(EmployeeDetails.this, "Surname");
-	}// end displaySearchBySurnameDialog
 
 	// find byte start in file for first active record
 	public void firstRecord() {
@@ -944,7 +927,8 @@ public class EmployeeDetails extends JFrame implements ItemListener, DocumentLis
 
 			if (checkInput() && !checkForChanges())
 				if (isSomeoneToDisplay())
-					displayEmployeeSummaryDialog();
+					if (isSomeoneToDisplay())
+						new EmployeeSummaryDialog(getAllEmloyees());
 
 		}
 	};
@@ -1043,10 +1027,28 @@ public class EmployeeDetails extends JFrame implements ItemListener, DocumentLis
 		}
 	};
 
+
+	ActionListener IdDialogListener = new ActionListener() {
+		public void actionPerformed(ActionEvent ae) {
+
+			new SearchDialog(EmployeeDetails.this, "id");
+
+		}
+	};
+	
+	
 	ActionListener surnameSearch = new ActionListener() {
 		public void actionPerformed(ActionEvent ae) {
 
 			searchEmployeeBySurname();
+
+		}
+	};
+
+	ActionListener surnameDialogListener = new ActionListener() {
+		public void actionPerformed(ActionEvent ae) {
+
+			new SearchDialog(EmployeeDetails.this, "surname");
 
 		}
 	};
