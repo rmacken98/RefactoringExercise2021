@@ -5,7 +5,8 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
@@ -19,10 +20,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.DocumentEvent;
 
 import net.miginfocom.swing.MigLayout;
 
-public class EmployeePanels {
+public class EmployeeGUI implements DocumentListener,ItemListener{
 
 	
     Font font1 = new Font("SansSerif", Font.BOLD, 16);
@@ -41,13 +44,9 @@ public JTextField idField, ppsField, surnameField, firstNameField, salaryField, 
 String[] gender = { "", "M", "F" };
 String[] fullTime = { "", "Yes", "No" };
 String[] department = { "", "Administration", "Production", "Transport", "Management" };
-//EmployeeDetails ed = new EmployeeDetails();
-
-
 
 public JMenuBar menuBar() {
 	JMenuBar menuBar = new JMenuBar();
-	//JMenu fileMenu, recordMenu, navigateMenu, closeMenu;
 
 	fileMenu = new JMenu("File");
 	fileMenu.setMnemonic(KeyEvent.VK_F);
@@ -64,28 +63,28 @@ public JMenuBar menuBar() {
 	menuBar.add(closeMenu);
 
 	fileMenu.add(open = new JMenuItem("Open"));
-	//.addActionListener(openListener);
+	
 	open.setMnemonic(KeyEvent.VK_O);
 	open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
 	fileMenu.add(save = new JMenuItem("Save"));
-	//.addActionListener(saveListener);
+	
 	save.setMnemonic(KeyEvent.VK_S);
 	save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
 	fileMenu.add(saveAs = new JMenuItem("Save As"));
-	//.addActionListener(saveAsListener);
+	
 	saveAs.setMnemonic(KeyEvent.VK_F2);
 	saveAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, ActionEvent.CTRL_MASK));
 
 	recordMenu.add(create = new JMenuItem("Create new Record"));
-	//.addActionListener(addRecordListener);
+	
 	create.setMnemonic(KeyEvent.VK_N);
 	create.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
 	recordMenu.add(modify = new JMenuItem("Modify Record"));
-	//.addActionListener(modifyRecordListener);
+	
 	modify.setMnemonic(KeyEvent.VK_E);
 	modify.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));
 	recordMenu.add(delete = new JMenuItem("Delete Record"));
-	//.addActionListener(deleteRecordListener);
+	
 
 	navigateMenu.add(firstItem = new JMenuItem("First"));
 	
@@ -97,7 +96,6 @@ public JMenuBar menuBar() {
 	
 	navigateMenu.addSeparator();
 	navigateMenu.add(searchById = new JMenuItem("Search by ID"));
-	//.addActionListener(IdSearchListener);
 	navigateMenu.add(searchBySurname = new JMenuItem("Search by Surname"));
 	navigateMenu.add(listAll = new JMenuItem("List all Records"));
 
@@ -109,7 +107,7 @@ public JMenuBar menuBar() {
 
 
 	return menuBar;
-}// end menuBar
+} 
 
 
 
@@ -189,12 +187,10 @@ public JMenuBar menuBar() {
 	public static void createAndShowGUI(EmployeeDetails frame) {
 
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		frame.createContentPane();// add content pane to frame
-		frame.setSize(760, 600);
+		frame.createContentPane();
 		frame.setLocation(250, 200);
 		frame.setVisible(true);
-	}// end createAndShowGUI
-	
+	}
 	public JPanel buttonPanel() {
 		JPanel buttonPanel = new JPanel();
 
@@ -246,11 +242,9 @@ public JMenuBar menuBar() {
 		empDetails.add(fullTimeCombo = new JComboBox<String>(fullTime), "growx, pushx, wrap");
 
 		buttonPanel.add(saveChange = new JButton("Save"));
-		//saveChange.addActionListener(saveChangeListener);
 		saveChange.setVisible(false);
 		saveChange.setToolTipText("Save changes");
 		buttonPanel.add(cancelChange = new JButton("Cancel"));
-		//cancelChange.addActionListener(cancelChangeListener);
 		cancelChange.setVisible(false);
 		cancelChange.setToolTipText("Cancel edit");
 
@@ -266,8 +260,8 @@ public JMenuBar menuBar() {
 					field.setDocument(new JTextFieldLimit(9));
 				else
 					field.setDocument(new JTextFieldLimit(20));
-				//field.getDocument().addDocumentListener(this);
-			} // end if
+				field.getDocument().addDocumentListener(this);
+			}
 			else if (empDetails.getComponent(i) instanceof JComboBox) {
 				empDetails.getComponent(i).setBackground(Color.WHITE);
 				empDetails.getComponent(i).setEnabled(false);
@@ -285,11 +279,27 @@ public JMenuBar menuBar() {
 	}// end detailsPanel
 	
 
-	
+	// DocumentListener methods
+	public void changedUpdate(DocumentEvent d) {
+		change = true;
+		new JTextFieldLimit(20);
+	}
+
+	public void insertUpdate(DocumentEvent d) {
+		change = true;
+		new JTextFieldLimit(20);
+	}
+
+	public void removeUpdate(DocumentEvent d) {
+		change = true;
+		new JTextFieldLimit(20);
+	}
 
 	
 	
-	
+	public void itemStateChanged(ItemEvent e) {
+		change = true;
+	}
 	
 	
 	
